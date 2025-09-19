@@ -1,0 +1,200 @@
+from flask import Flask, render_template_string, request, redirect, url_for
+import os, requests, time
+from werkzeug.utils import secure_filename
+
+app = Flask(__name__)
+app.config[ UPLOAD_FOLDER ] = "static/uploads"
+os.makedirs(app.config[ UPLOAD_FOLDER ], exist_ok=True)
+
+# ========== 🔑 ضع مفتاح الـAPI هنا أو كمتغير بيئة ==========
+API_KEY = os.getenv("A1D_API_KEY", "https://a1d.ai/api/nano-banana/edit")
+# ==========================================================
+
+TEMPLATE =    
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>موقع تعديل الصور - روني البحيره</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <style>
+    body{background:#f8f9fa}
+    .editor-wrap{max-width:980px;margin:20px auto}
+    #canvasWrap{position:relative;width:100%;height:560px;border:1px solid #ddd;background:#000;overflow:hidden}
+    video#bgvideo{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:1}
+    canvas#composite{position:absolute;left:0;top:0;z-index:2}
+    img#editedImg{display:none}
+    .watermark{position:absolute;left:10px;bottom:10px;z-index:3;pointer-events:none;opacity:0.5;color:#fff;font-weight:700}
+    .api-highlight{box-shadow:0 0 12px rgba(255,200,0,0.9);border:2px solid rgba(255,200,0,0.6)}
+    .note-danger{background:#fff3cd;border-left:4px solid #ffe08a;padding:10px;margin-bottom:10px}
+  </style>
+</head>
+<body>
+<div class="container editor-wrap">
+  <h3 class="mb-3">أداة تعديل الصور بخلفية فيديو — روني البحيره</h3>
+
+  <div class="note-danger">
+    <strong>ملاحظة مهمة:</strong> ضع مفتاح الـAPI هنا مؤقتًا فقط أثناء الاختبار. <u>أَزِل المفتاح قبل رفع الكود على GitHub</u> أو ضع المفتاح في متغيّر بيئة (A1D_API_KEY).
+  </div>
+
+  <form method="post" action="/upload" enctype="multipart/form-data" class="mb-3">
+    <div class="mb-2">
+      <label class="form-label">اختر الفيديو الخلفي</label>
+      <input class="form-control" name="bg_name" placeholder="مثال: your-video.mp4" value="your-video.mp4">
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-2">
+        <label class="form-label">تحميل صورة مربعة (Square)</label>
+        <input class="form-control" type="file" name="square" accept="image/*">
+      </div>
+      <div class="col-md-6 mb-2">
+        <label class="form-label">تحميل صورة مستطيلة (Rectangle)</label>
+        <input class="form-control" type="file" name="rect" accept="image/*">
+      </div>
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">وصف التعديل (Prompt)</label>
+      <input class="form-control" name="prompt" placeholder="اكتب التعديل المطلوب مثل: اجعل الولد يحضن البنت">
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">API Key (ضع مفتاح الـAPI هنا او ضعه كمتغير بيئة)</label>
+      <input class="form-control api-highlight" name="api_key" placeholder="أدخل مفتاح الـAPI هنا (احذفه قبل رفع الكود)">
+      <small class="text-muted">بدلاً من وضع المفتاح هنا يمكنك تعيين متغير بيئة باسم <code>A1D_API_KEY</code>.</small>
+    </div>
+
+    <button class="btn btn-primary">ارسل للتعديل</button>
+  </form>
+
+  {% if edited_path %}
+  <div class="mb-3">
+    <p>الصورة بعد التعديل جاهزة — اسحب لمعاينتها تحت</p>
+  </div>
+  {% endif %}
+
+  <div id="canvasWrap">
+    <video id="bgvideo" autoplay muted loop playsinline>
+      <source src="/static/backgrounds/{{ bg_name }}" type="video/mp4">
+      متصفحك لا يدعم عنصر الفيديو.
+    </video>
+    <canvas id="composite"></canvas>
+    <img id="editedImg" src="/{{ edited_path if edited_path else    }}" crossorigin="anonymous">
+    <div class="watermark">رونــي البحيره</div>
+  </div>
+
+  <div class="mt-3 d-flex gap-2">
+    <button id="downloadBtn" class="btn btn-success">تنزيل</button>
+    <button id="shareBtn" class="btn btn-outline-primary">مشاركة</button>
+    <a class="btn btn-secondary" href="/">رجوع</a>
+  </div>
+
+  <footer class="mt-4 text-center small text-muted">جميع الحقوق محفوظة لـ روني البحيره 2025</footer>
+</div>
+
+<script>
+const video = document.getElementById( bgvideo );
+const canvas = document.getElementById( composite );
+const ctx = canvas.getContext( 2d );
+const editedImg = document.getElementById( editedImg );
+const watermarkText =  رونــي البحيره ;
+
+function fitCanvas(){
+  const wrap = document.getElementById( canvasWrap );
+  canvas.width = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+}
+window.addEventListener( resize , fitCanvas);
+fitCanvas();
+
+function drawFrame(){
+  try{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if(editedImg && editedImg.complete && editedImg.naturalWidth){
+      const targetW = canvas.width * 0.5;
+      const aspect = editedImg.naturalWidth / editedImg.naturalHeight;
+      const targetH = targetW / aspect;
+      const x = (canvas.width - targetW)/2;
+      const y = (canvas.height - targetH)/2;
+      ctx.drawImage(editedImg, x, y, targetW, targetH);
+    }
+    ctx.globalAlpha = 0.5;
+    ctx.font =  24px Arial ;
+    ctx.fillStyle =  #ffffff ;
+    ctx.fillText(watermarkText, 12, canvas.height - 12);
+    ctx.globalAlpha = 1.0;
+  }catch(e){ console.log( draw error , e); }
+  requestAnimationFrame(drawFrame);
+}
+video.addEventListener( play , ()=>{ requestAnimationFrame(drawFrame); });
+
+document.getElementById( downloadBtn ).addEventListener( click , ()=>{
+  const data = canvas.toDataURL( image/png );
+  const a = document.createElement( a );
+  a.href = data;
+  a.download =  edited_with_bg.png ;
+  a.click();
+});
+
+document.getElementById( shareBtn ).addEventListener( click , async ()=>{
+  if(navigator.share){
+    canvas.toBlob(async blob=>{
+      const filesArray = [new File([blob],  edited.png , {type: image/png })];
+      try{ await navigator.share({files: filesArray, title:  صورة معدلة , text:  صورة من روني البحيره }); }
+      catch(err){ alert( مشاركة فشلت:  +err); }
+    });
+  } else {
+    alert( متصفحك لا يدعم المشاركة المباشرة. استخدم زر التنزيل ثم شارك يدوياً. );
+  }
+});
+</script>
+</body>
+</html>
+   
+
+def edit_image(image_path, prompt, api_key):
+    url = "https://a1d.ai/api/nano-banana/edit"
+    res = requests.post(url,
+                        headers={"Authorization": f"Bearer {api_key}"},
+                        json={
+                            "prompt": prompt,
+                            "images": [image_path],
+                            "enable_base64_output": False
+                        }).json()
+    job_id = res[ data ][ id ]
+    for _ in range(10):
+        status = requests.get(f"https://a1d.ai/api/nano-banana/status?id={job_id}",
+                              headers={"Authorization": f"Bearer {api_key}"}).json()
+        if len(status[ data ][ outputs ]) == 1:
+            return status[ data ][ outputs ][0]
+        time.sleep(5)
+    return None
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template_string(TEMPLATE, edited_path=None, bg_name="your-video.mp4")
+
+@app.route("/upload", methods=["POST"])
+def upload():
+    prompt = request.form.get("prompt", "")
+    bg_name = request.form.get("bg_name", "your-video.mp4")
+    api_key = request.form.get("api_key") or API_KEY
+
+    file = request.files.get("square") or request.files.get("rect")
+    if not file:
+        return redirect(url_for("index"))
+
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config[ UPLOAD_FOLDER ], filename)
+    file.save(file_path)
+
+    edited_url = edit_image(file_path, prompt, api_key)
+
+    return render_template_string(TEMPLATE, edited_path=edited_url, bg_name=bg_name)
+
+if __name__ == "__main__":
+    app.run(debug=True)
+		
