@@ -14,14 +14,16 @@
     body, html {
       min-height: 100vh;
       font-family: "Cairo", sans-serif;
-      overflow-y: auto; /* السماح بالسكرول */
+      overflow-y: auto;
+      overflow-x: hidden;
       color: white;
       text-align: center;
       position: relative;
     }
 
+    /* الفيديو ثابت في الخلفية */
     #bg-video {
-      position: absolute; /* بدل fixed */
+      position: fixed; 
       top: 0;
       left: 0;
       width: 100%;
@@ -64,10 +66,10 @@
     }
 
     button {
-      padding: 12px 25px;
-      font-size: 18px;
+      padding: 12px 20px;
+      font-size: 20px;
       border: none;
-      border-radius: 10px;
+      border-radius: 50%;
       cursor: pointer;
       background: #ff0000;
       color: white;
@@ -85,13 +87,13 @@
     }
 
     button:hover {
-      transform: scale(1.05);
+      transform: scale(1.1);
       background: #cc0000;
     }
 
     .result {
       margin-top: 20px;
-      margin-bottom: 40px; /* عشان تدي مساحة للسكرول */
+      margin-bottom: 60px;
     }
 
     img {
@@ -108,8 +110,33 @@
       to { box-shadow: 0 0 25px red, 0 0 50px red, 0 0 75px red; }
     }
 
+    /* زر التحميل الاحترافي */
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background 0.3s ease;
+    }
+
+    .download-btn:hover {
+      background: rgba(255,0,0,0.8);
+    }
+
+    .download-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+
     footer {
-      margin: 30px 0;
+      margin: 40px 0;
       font-size: 14px;
       color: #ddd;
     }
@@ -125,7 +152,7 @@
 
   <input type="text" id="userText" placeholder="أدخل النص هنا ..." />
   <br>
-  <button onclick="generate()">✨ عرض النتيجة</button>
+  <button onclick="generate()">✨</button>
 
   <div class="result" id="result"></div>
 
@@ -145,8 +172,11 @@
       document.getElementById("result").innerHTML = `
         <p>✅ تم إنشاء الورقة:</p>
         <img src="${url}" alt="النتيجة"><br>
-        <a href="${url}" download="rony_handwriting.png">
-          <button title="تحميل">⬇️</button>
+        <a href="${url}" download="rony_handwriting.png" class="download-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 16l4-5h-3V4h-2v7H8l4 5zM20 18H4v2h16v-2z"/>
+          </svg>
+          تنزيل الصورة
         </a>
       `;
     }
