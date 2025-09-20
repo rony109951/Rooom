@@ -12,24 +12,24 @@
     }
 
     body, html {
-      height: 100%;
+      min-height: 100vh;
       font-family: "Cairo", sans-serif;
       overflow-y: auto; /* السماح بالسكرول */
       color: white;
       text-align: center;
+      position: relative;
     }
 
     #bg-video {
-      position: fixed;
-      right: 0;
-      bottom: 0;
-      min-width: 100%;
-      min-height: 100%;
+      position: absolute; /* بدل fixed */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       z-index: -1;
       object-fit: cover;
     }
 
-    /* تأثير النيون الأحمر المتحرك */
     h1, p, footer {
       text-shadow: 0 0 5px #fff, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
       animation: neonFlash 1.5s infinite alternate;
@@ -91,6 +91,7 @@
 
     .result {
       margin-top: 20px;
+      margin-bottom: 40px; /* عشان تدي مساحة للسكرول */
     }
 
     img {
@@ -102,7 +103,6 @@
       animation: glow 2s infinite alternate;
     }
 
-    /* إضاءة متحركة حوالين الصورة */
     @keyframes glow {
       from { box-shadow: 0 0 10px red, 0 0 20px red; }
       to { box-shadow: 0 0 25px red, 0 0 50px red, 0 0 75px red; }
@@ -146,13 +146,10 @@
         <p>✅ تم إنشاء الورقة:</p>
         <img src="${url}" alt="النتيجة"><br>
         <a href="${url}" download="rony_handwriting.png">
-          <button title="تحميل">
-            ⬇️ تنزيل الصورة
-          </button>
+          <button title="تحميل">⬇️</button>
         </a>
       `;
     }
   </script>
 </body>
-  </html>
-  
+</html>
