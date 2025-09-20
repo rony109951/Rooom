@@ -19,7 +19,6 @@
       text-align: center;
     }
 
-    /* خلفية الفيديو */
     #bg-video {
       position: fixed;
       right: 0;
@@ -30,9 +29,25 @@
       object-fit: cover;
     }
 
-    /* تأثير النيون */
+    /* تأثير النيون الأحمر المتحرك */
     h1, p, footer {
-      text-shadow: 0 0 5px #fff, 0 0 10px #ff0080, 0 0 20px #ff0080, 0 0 40px #ff0080;
+      text-shadow: 0 0 5px #fff, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
+      animation: neonFlash 1.5s infinite alternate;
+    }
+
+    @keyframes neonFlash {
+      0% {
+        text-shadow: 0 0 5px #fff, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
+        opacity: 1;
+      }
+      50% {
+        text-shadow: 0 0 2px #fff, 0 0 5px #cc0000, 0 0 10px #cc0000, 0 0 20px #cc0000;
+        opacity: 0.7;
+      }
+      100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 50px #ff0000;
+        opacity: 1;
+      }
     }
 
     h1 {
@@ -63,16 +78,30 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      background: #ff0080;
+      background: #ff0000;
       color: white;
       font-weight: bold;
-      box-shadow: 0 0 10px #ff0080, 0 0 20px #ff0080;
+      box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
       transition: 0.3s;
+      margin: 5px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
+      }
+      50% {
+        box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+      }
+      100% {
+        box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
+      }
     }
 
     button:hover {
       transform: scale(1.05);
-      background: #e60073;
+      background: #cc0000;
     }
 
     .result {
@@ -84,7 +113,18 @@
       border: 3px solid white;
       border-radius: 12px;
       margin-top: 15px;
-      box-shadow: 0 0 25px rgba(255,0,128,0.7);
+      box-shadow: 0 0 25px rgba(255,0,0,0.7);
+      animation: glow 2s infinite alternate;
+    }
+
+    /* إضاءة متحركة حوالين الصورة */
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 10px red, 0 0 20px red;
+      }
+      to {
+        box-shadow: 0 0 25px red, 0 0 50px red, 0 0 75px red;
+      }
     }
 
     footer {
@@ -95,7 +135,6 @@
   </style>
 </head>
 <body>
-  <!-- خلفية الفيديو -->
   <video autoplay muted loop id="bg-video">
     <source src="rony.mp4" type="video/mp4">
   </video>
@@ -105,12 +144,12 @@
 
   <input type="text" id="userText" placeholder="أدخل النص هنا ..." />
   <br>
-  <button onclick="generate()">عرض النتيجة</button>
+  <button onclick="generate()">✨ عرض النتيجة</button>
 
   <div class="result" id="result"></div>
 
   <footer>
-    🚀 موقع من تطوير <b>روني البحيره</b> <br>
+    🚀 موقع من تطوير <b>د روني البحيره</b> <br>
     ⚖️ جميع الحقوق محفوظة ©️ روني البحيره 2025
   </footer>
 
@@ -124,10 +163,12 @@
       let url = `https://apis.xditya.me/write?text=${encodeURIComponent(text)}`;
       document.getElementById("result").innerHTML = `
         <p>✅ تم إنشاء الورقة:</p>
-        <img src="${url}" alt="النتيجة">
+        <img src="${url}" alt="النتيجة"><br>
+        <a href="${url}" download="rony_handwriting.png">
+          <button>⬇️ تنزيل الصورة</button>
+        </a>
       `;
     }
   </script>
 </body>
-  </html>
-                      
+</html>
