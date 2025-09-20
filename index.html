@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>🖼️ مولد الصور - روني</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✍️ كتابة بخط اليد - روني البحيره</title>
   <style>
-    body, html {
+    * {
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
       height: 100%;
-      font-family: "Tajawal", sans-serif;
+      font-family: "Cairo", sans-serif;
+      overflow: hidden;
       color: white;
       text-align: center;
-      overflow: hidden;
     }
-    video.bg {
+
+    /* خلفية الفيديو */
+    #bg-video {
       position: fixed;
       right: 0;
       bottom: 0;
@@ -22,102 +29,105 @@
       z-index: -1;
       object-fit: cover;
     }
-    .content {
-      position: relative;
-      top: 20%;
-      background: rgba(0,0,0,0.5);
-      padding: 20px;
-      border-radius: 12px;
-      display: inline-block;
+
+    /* تأثير النيون */
+    h1, p, footer {
+      text-shadow: 0 0 5px #fff, 0 0 10px #ff0080, 0 0 20px #ff0080, 0 0 40px #ff0080;
     }
+
+    h1 {
+      font-size: 34px;
+      margin: 20px 0;
+    }
+
+    p {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
     input {
-      width: 70%;
       padding: 10px;
+      font-size: 18px;
       border-radius: 8px;
       border: none;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #ff0066;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      margin-left: 10px;
-    }
-    button:hover {
-      background: #ff3385;
-    }
-    img {
-      margin-top: 20px;
-      max-width: 80%;
-      border-radius: 12px;
-      box-shadow: 0 0 15px black;
-    }
-    footer {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
+      width: 80%;
+      max-width: 400px;
+      outline: none;
+      margin-bottom: 15px;
       text-align: center;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #ff0080;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 10px #ff0080, 0 0 20px #ff0080;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: #e60073;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    img {
+      max-width: 90%;
+      border: 3px solid white;
+      border-radius: 12px;
+      margin-top: 15px;
+      box-shadow: 0 0 25px rgba(255,0,128,0.7);
+    }
+
+    footer {
+      margin-top: 25px;
       font-size: 14px;
-      background: rgba(0,0,0,0.5);
-      padding: 5px;
-      border-radius: 8px;
+      color: #ddd;
     }
   </style>
 </head>
 <body>
-  <!-- خلفية فيديو -->
-  <video autoplay muted loop class="bg">
+  <!-- خلفية الفيديو -->
+  <video autoplay muted loop id="bg-video">
     <source src="rony.mp4" type="video/mp4">
   </video>
 
-  <div class="content">
-    <h1>🌟 مولد الصور بالذكاء الاصطناعي 🌟</h1>
-    <input type="text" id="prompt" placeholder="اكتب وصف الصورة هنا...">
-    <button onclick="generate()">🚀 توليد</button>
-    <div id="result"></div>
-  </div>
+  <h1>✍️ كتابة نص بخط اليد</h1>
+  <p>أكتب نص باللغة الإنجليزية وسيتم تحويله إلى ورقة مكتوبة بخط اليد</p>
 
-  <footer>جميع الحقوق محفوظة © روني البحيره</footer>
+  <input type="text" id="userText" placeholder="أدخل النص هنا ..." />
+  <br>
+  <button onclick="generate()">عرض النتيجة</button>
+
+  <div class="result" id="result"></div>
+
+  <footer>
+    🚀 موقع من تطوير <b>روني البحيره</b> <br>
+    ⚖️ جميع الحقوق محفوظة ©️ روني البحيره 2025
+  </footer>
 
   <script>
-    async function generate() {
-      let prompt = document.getElementById("prompt").value;
-      if (!prompt) {
-        alert("⚠️ من فضلك اكتب وصف الصورة أولاً");
+    function generate() {
+      let text = document.getElementById("userText").value;
+      if (text.trim() === "") {
+        alert("⚠️ من فضلك أدخل نص أولاً!");
         return;
       }
-
-      document.getElementById("result").innerHTML = "<p>⏳ جاري إنشاء الصورة...</p>";
-
-      try {
-        let res = await fetch("https://magicphotos.com/api/generate-art", {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "user-agent": "Mozilla/5.0"
-          },
-          body: JSON.stringify({
-            prompt: prompt,
-            userProfile: {}
-          })
-        });
-
-        if (!res.ok) throw new Error("فشل التوليد");
-
-        let blob = await res.blob();
-        let url = URL.createObjectURL(blob);
-
-        document.getElementById("result").innerHTML = `<img src="${url}" alt="الصورة">`;
-
-      } catch (err) {
-        document.getElementById("result").innerHTML = "<p>❌ حدث خطأ أثناء إنشاء الصورة</p>";
-        console.error(err);
-      }
+      let url = `https://apis.xditya.me/write?text=${encodeURIComponent(text)}`;
+      document.getElementById("result").innerHTML = `
+        <p>✅ تم إنشاء الورقة:</p>
+        <img src="${url}" alt="النتيجة">
+      `;
     }
   </script>
 </body>
-</html>
+  </html>
+                      
