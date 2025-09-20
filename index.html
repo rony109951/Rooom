@@ -14,7 +14,7 @@
     body, html {
       height: 100%;
       font-family: "Cairo", sans-serif;
-      overflow: hidden;
+      overflow-y: auto; /* السماح بالسكرول */
       color: white;
       text-align: center;
     }
@@ -36,18 +36,9 @@
     }
 
     @keyframes neonFlash {
-      0% {
-        text-shadow: 0 0 5px #fff, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
-        opacity: 1;
-      }
-      50% {
-        text-shadow: 0 0 2px #fff, 0 0 5px #cc0000, 0 0 10px #cc0000, 0 0 20px #cc0000;
-        opacity: 0.7;
-      }
-      100% {
-        text-shadow: 0 0 10px #fff, 0 0 20px #ff0000, 0 0 30px #ff0000, 0 0 50px #ff0000;
-        opacity: 1;
-      }
+      0% { opacity: 1; }
+      50% { opacity: 0.7; }
+      100% { opacity: 1; }
     }
 
     h1 {
@@ -88,15 +79,9 @@
     }
 
     @keyframes pulse {
-      0% {
-        box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
-      }
-      50% {
-        box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
-      }
-      100% {
-        box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
-      }
+      0% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+      50% { box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000; }
+      100% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
     }
 
     button:hover {
@@ -119,16 +104,12 @@
 
     /* إضاءة متحركة حوالين الصورة */
     @keyframes glow {
-      from {
-        box-shadow: 0 0 10px red, 0 0 20px red;
-      }
-      to {
-        box-shadow: 0 0 25px red, 0 0 50px red, 0 0 75px red;
-      }
+      from { box-shadow: 0 0 10px red, 0 0 20px red; }
+      to { box-shadow: 0 0 25px red, 0 0 50px red, 0 0 75px red; }
     }
 
     footer {
-      margin-top: 25px;
+      margin: 30px 0;
       font-size: 14px;
       color: #ddd;
     }
@@ -165,10 +146,13 @@
         <p>✅ تم إنشاء الورقة:</p>
         <img src="${url}" alt="النتيجة"><br>
         <a href="${url}" download="rony_handwriting.png">
-          <button>⬇️ تنزيل الصورة</button>
+          <button title="تحميل">
+            ⬇️ تنزيل الصورة
+          </button>
         </a>
       `;
     }
   </script>
 </body>
-</html>
+  </html>
+  
